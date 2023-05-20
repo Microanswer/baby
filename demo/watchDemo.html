@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>Watch Demo</title>
+    <script src="../dist/Baby.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    let SubComponent = {
+        props: {
+            time: {type:String},
+        },
+        render: function (h) {
+            return h("div", {}, this.time)
+        },
+        watch: {
+            // 在发现 time 字段更新时，进行页面内容的更新。
+            time (newval, oldvalue) {
+                this.$el.innerText = newval;
+            }
+        }
+    };
+
+    new Baby({
+        components: {SubComponent},
+        render: function (h) {
+            return h("SubComponent", {
+                props: () => ({time: this.currentTime})
+            })
+        },
+        mounted () {
+            // 每秒钟更新当前时间。
+            setInterval(() => {
+                this.currentTime = new Date().toLocaleString();
+            }, 1000);
+        },
+        data:{
+            currentTime: new Date().toLocaleString()
+        }
+    }).$mount("#app");
+</script>
+</body>
+</html>
