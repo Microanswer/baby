@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>TodoList With Baby</title>
+    <script src="../dist/Baby.js" type="application/javascript"></script>
+    <style>
+        button, input{
+            vertical-align: middle;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+
+    let TodoItem = {
+        name: "TodoItem",
+        props: {
+            txt: {type: String}
+        },
+        render: function (h) {
+            return h("li", {}, [
+                h("span", {}, this.txt),
+                h("button", {style: {marginLeft: "5px"}, on: {click: this.complete}}, "完成"),
+                h("button", {on: {click: this.onRemoveClick}}, "移除"),
+            ])
+        },
+        methods: {
+            onRemoveClick() {
+                this.$emit("doRemove", this);
+            },
+            complete() {
+                this.$el.style.textDecoration = "line-through";
+            }
+        }
+    };
+
+    new Baby({
+        components: {
+            TodoItem: TodoItem,
+        },
+        render: function (h) {
+            return h("div", {}, [
+                h("h2", {}, ["Todo list demo."]),
+                h("div", {}, [
+                    h("input", {ref: "input", placeholder: "记录事项内容", on: {
+                        input: this.onInput
+                    }}),
+                    h("button", {on: {click: this.onAddClick}}, "添加记录")
+                ]),
+                h("span", {ref: "current",style: {color: "gray", fontSize: "10px", display: "none"}}),
+                h("ul", {ref: "lists"})
+            ])
+        },
+        mounted() {
+            this.addTodoItem("于明日购买 GTX 4090Ti。");
+            this.addTodoItem("下周一完成软件新版本的上线。");
+            this.addTodoItem("下个月3号配宝宝去公园玩耍。");
+        },
+        methods: {
+            onInput() {
+                this.inputingValue = this.$refs.input.value.trim();
+            },
+            onRemoveItem(todoItem) {
+                let txt = todoItem.txt;
+                let index = this.lists.indexOf(txt);
+                if (index !== -1) {
+                    this.lists.splice(index, 1);
+                    this.$refs.lists.children[index].remove();
+                }
+            },
+            onAddClick() {
+                let txt = this.$refs.input.value;
+                this.addTodoItem(txt);
+                this.$refs.input.value = "";
+                this.inputingValue = "";
+            },
+            addTodoItem(str) {
+                if (!str.trim() || this.lists.indexOf(str) !== -1) {
+                    return
+                }
+                this.lists.push(str);
+                let todoItem = this.$createElement(h => h("TodoItem", {props: {txt: str}, on: {
+                        doRemove: this.onRemoveItem
+                    }}));
+                this.$refs.lists.append(todoItem);
+            }
+        },
+        watch: {
+            inputingValue(newValue) {
+                if (newValue) {
+                    this.$refs.current.style.display = "inline";
+                    this.$refs.current.innerText = "即将记录："+newValue;
+                } else {
+                    this.$refs.current.style.display = "none";
+                }
+            }
+        },
+        data: {
+            lists: [],
+            inputingValue: "",
+        }
+    }).$mount("#app");
+
+</script>
+</body>
+</html>

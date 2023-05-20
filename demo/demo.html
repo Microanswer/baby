@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>Baby Demo</title>
+    <script src="../dist/Baby.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    let SubCom = {
+        props: {word: {type: String}},
+        render: function (h) {
+            return h("div", {
+                style: {
+                    wordBreak: "break-all",
+                    border: "1px solid blue",
+                    margin: "20px",
+                    width: "120px",
+                    height: "120px",
+                    padding: "5px"
+                }
+            }, [
+                h("div", {style: {color: "gray", fontSize: "10px"}}, "我是子组件"),
+                h("div", {ref: "content"}, this.word)
+            ])
+        },
+        watch: {
+            word(newval) {
+                this.$refs.content.innerText = newval
+            }
+        }
+    }
+
+    let Main = {
+        components: {SubCom: SubCom},
+        render: function (h) {
+            return h("div", {
+                style: {
+                    border: "1px solid gray",
+                    width: "200px",
+                    height: "200px",
+                    padding: "10px"
+                }
+            }, [
+                h("div", {}, "我是父组件"),
+                h("input", {
+                    ref: "input",
+                    placeholder: "内容会自动响应给子组件",
+                    style: {fontSize: "12px"},
+                    on: {
+                        input: this.onInput
+                    }
+                }),
+                h("SubCom", {props: () => ({word: this.inputValue})})
+            ])
+        },
+        methods: {
+            onInput() {
+                this.inputValue = this.$refs.input.value;
+            }
+        },
+        data: {
+            inputValue: ""
+        }
+    }
+
+    new Baby(Main).$mount("#app");
+</script>
+</body>
+</html>
