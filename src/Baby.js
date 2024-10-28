@@ -63,7 +63,11 @@ function h(tag, attr, children) {
     if (attr) {
         if (attr.style) {
             for (const key in attr.style) {
-                ele.style[key] = attr.style[key];
+                if (key.startsWith("--")) {
+                    ele.style.setProperty(key, attr.style[key]);
+                } else {
+                    ele.style[key] = attr.style[key];
+                }
             }
             delete attr.style;
         }
@@ -90,7 +94,15 @@ function h(tag, attr, children) {
 
         if (attr.ref) {
             this.$refs = this.$refs || {};
-            this.$refs[attr.ref] = componentInstace || ele;
+
+            if (this.$refs[attr.ref]) {
+                if (!Array.isArray(this.$refs[attr.ref])) {
+                    this.$refs[attr.ref] = [this.$refs[attr.ref]]
+                }
+                this.$refs[attr.ref].push(componentInstace || ele);
+            } else {
+                this.$refs[attr.ref] = componentInstace || ele;
+            }
         }
 
         for (const key in attr) {
@@ -287,7 +299,12 @@ Baby.prototype._init = function (option) {
     this.components = {};
     this.$children = [];
     for (let c in components) {
-        this.components[c] = Baby.extend(components[c]);
+        let cp = components[c];
+        if (typeof cp === "function") {
+            this.components[c] = Baby.extend(cp());
+        } else {
+            this.components[c] = Baby.extend(cp);
+        }
     }
 
     // 接入渲染函数
@@ -357,10 +374,13 @@ Baby.prototype.$mount = function (el) {
  * @param arg {any} 事件参数
  */
 Baby.prototype.$emit = function (eventName, arg) {
+    let _this = this;
     let event = new CustomEvent(eventName, {
         detail: arg
     });
-    this.$el.dispatchEvent(event);
+    setTimeout(function () {
+        _this.$el.dispatchEvent(event);
+    });
 }
 
 
