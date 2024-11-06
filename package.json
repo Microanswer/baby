@@ -1,12 +1,17 @@
 {
-  "name": "baby",
+  "name": "babyy",
   "version": "1.0.1",
-  "description": "",
+  "description": "A tiny responsive web front-end development framework.",
   "main": "src/Baby.js",
   "scripts": {
     "build": "gulp build"
   },
-  "author": "",
+  "files": [
+    "src"
+  ],
+  "author": "Microanswer",
+  "repository": "https://github.com/Microanswer/baby",
+  "homepage": "https://github.com/Microanswer/baby",
   "license": "ISC",
   "devDependencies": {
     "browserify": "^17.0.0",
